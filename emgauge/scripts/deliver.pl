@@ -293,6 +293,7 @@ foreach(@recipients) {
 
 die("No Log Entry found for Mailer: $mlrid")
 	unless (my @mailerlog = EMGaugeDB::MailerLog->search(mailer => $mlrid));
+
 my $mailerlog = $mailerlog[0];
 $mailerlog->delivered($mailerlog->delivered + $count);
 $mailerlog->update;
