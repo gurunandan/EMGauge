@@ -1013,7 +1013,7 @@ sub test_mailer : Runmode {
 	}
 
 	my $digest = sha1_hex($app->config_param('Mail.DigestSekrit') . $rcpt);
-	my $unsubscribelink = $baseurl . '/user.cgi?mode=unsubscribetest&rcpt=' . uri_escape($rcpt) . qq{&id=$digest};
+	my $unsubscribelink = $baseurl . '/user.cgi?rm=unsubscribetest&rcpt=' . uri_escape($rcpt) . qq{&id=$digest};
 	my $mlrstr = $tree->as_HTML();
 
 	$tree->delete;
@@ -1043,7 +1043,7 @@ sub test_mailer : Runmode {
 		$msg->attach(
 			Type => 'text/html',
 			Data => $ttpl->fill_in(HASH => {
-				unsubscribelink => $baseurl . '/user.cgi?mode=unsubscribe&rcpt=' . uri_escape($_) . '&digest=' . $digest,
+				unsubscribelink => $baseurl . '/user.cgi?rm=unsubscribe&rcpt=' . uri_escape($_) . '&digest=' . $digest,
 				viewonlinelink => $mlrurl,
 			}),
 			Encoding => 'quoted-printable',
