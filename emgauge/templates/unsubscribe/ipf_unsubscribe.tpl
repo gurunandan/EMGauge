@@ -39,7 +39,7 @@
 		<div class="unsubscribe">
 			<img src="images/ipfonline.gif", alt="IPFonline.com India's only industrial products" />
 			<h1>Unsubscribe</h1>
-			<p>Please confirm that you wish to unsubscribe <strong>dileepan@informationmatters.in</strong> from receiving future email marketing communications.</p>
+			<p>Please confirm that you wish to unsubscribe <strong><!-- TMPL_VAR NAME=EMAIL --></strong> from receiving future email marketing communications.</p>
 			<table border="0" cellpadding="5" cellspacing="0">
 			<tr>
 				<td>

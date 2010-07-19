@@ -412,11 +412,15 @@ sub unsubscribetest : Runmode {
 	my $app = shift;
 
 	my $rcpt = $app->query->param('rcpt');
-	my $digest = $app->query->param('id');
-	my $testdigest = sha1_hex($app->config_param('Mail.DigestSekrit') . $rcpt);
+	my $digest = $app->query->param('digest');
+	
+	my $email = EMGaugeDB::Recipient->retrieve(id => $rcpt)->email;
+	
+	my $testdigest = sha1_hex($app->config_param('Mail.DigestSekrit') . $email);
 
 	my $tpl = $app->load_tmpl('unsubscribetest.tpl', die_on_bad_params => 0);
 
+	
 	my $success;
 	if ($digest eq $testdigest) {
 		$success = 1;
@@ -431,23 +435,23 @@ sub unsubscribetest : Runmode {
 	return $tpl->output;
 }
 
-sub unsubscribe : Runmode {
+sub unsubscribe : Runmode {	
 	
 	my $app = shift;
 	
 	my $rcpt = $app->query->param('rcpt');
 	my $digest = $app->query->param('digest');
 
-	die({type => 'error', msg => 'Sorry, We cannot unsubscribe you with incomplete information. Please click on a link sent to you in our communication' . "$rcpt|$digest"})
+	die({type => 'error', msg => 'Sorry, We cannot unsubscribe you with incomplete information. Please click on a link sent to you in our communication' . "$rcpt $digest"})
 		unless $rcpt && $digest;
 
-	die ({type => 'error', msg => 'Sorry, we do not have your email in our Database. Please click on a link sent to in our communication  . "$rcpt||$digest"'}) 
+	die ({type => 'error', msg => 'Sorry, we do not have your email in our Database. Please click on a link sent to in our communication  . "$rcpt $digest"'}) 
 		unless (my $user = EMGaugeDB::Recipient->retrieve(id => $rcpt));
 		
-	die ({type => 'error', msg => 'Sorry, We cannot unsubscribe you with incomplete information. Please click on a link sent to you in our communication' . "$rcpt|||$digest"}) 
+	die ({type => 'error', msg => 'Sorry, We cannot unsubscribe you with incomplete information. Please click on a link sent to you in our communication' . "$rcpt $digest"}) 
 		unless ($digest eq sha1_hex($app->config_param('Mail.DigestSekrit') . $user->email));
 	
-	my $tpl = $app->load_tmpl('unsubscribe.tpl', die_on_bad_params => 0);
+	my $tpl = $app->load_tmpl('unsubscribe/ipf_unsubscribe.tpl', die_on_bad_params => 0);
 
 	$tpl->param(
 		EMAIL => $user->email,
@@ -478,7 +482,7 @@ sub trulyunsubscribe : Runmode {
 	$user->set(unsubscribed => 1);
 	$user->update;
 		
-	return $app->redirect('http://sotc.in');
+	return $app->redirect('http://ipfonline.com/');
 }
 
 sub addcomment : Runmode {
