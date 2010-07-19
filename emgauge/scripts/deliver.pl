@@ -34,7 +34,6 @@ use POSIX;
 my $sid = 0;
 my $jobid = 0;
 my $force;
-
 GetOptions(
 	'schedule=i' => \$sid,
 	'jobid=i' => \$jobid,
