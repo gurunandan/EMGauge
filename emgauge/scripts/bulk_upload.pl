@@ -4,32 +4,43 @@ use strict;
 use warnings;
 
 use lib qw{../lib/};
+
 use EMGaugeDB::Recipient;
 use EMGaugeDB::Listmembers;
 use EMGaugeDB::List;
 
+use Text::CSV_XS;
+use Email::Valid;
+
 use Getopt::Long;
 
 my $listid;
-my $file;
+my $csvfile;
+my $col;
 
 GetOptions(
 	'list=i' => \$listid,
-	'file=s' => \$file,
+	'file=s' => \$csvfile,
+	'column=i' => \$col
 );
 
-open my $io, "<", $file or die "$file: $!";
+my $csv = Text::CSV_XS->new({binary => 1, eol => $/});
+open my $csvfh, '<', $csvfile or die "$csvfile: $!";
 
 my $count = 0;
 
-while (<$io>) {
+CSVROW:
+while (my $row = $csv->getline ($csvfh)) {
 
-	chomp;
-	s/^\s+//;
-	s/\s+$//;
+	my $email = $row->[$col];
+	
+	$email =~ s/^\s+//;
+	$email =~ s/\s+$//;
+	
+	next CSVROW unless ($email = Email::Valid->address($email));
 	
 	my $rcpt = EMGaugeDB::Recipient->find_or_create({
-		email => $_,
+		email => $email,
 	});
 
 	EMGaugeDB::Listmembers->insert({
@@ -37,17 +48,18 @@ while (<$io>) {
 		recipient => $rcpt->id,
 	});
 	
-	++$count;
+	print ++$count . "\n";
 	
-	my $list = EMGaugeDB::List->retrieve(id => $listid);
-	$list->set(
-		records => $count,
-		filename => $file,
-		active => 1,
-	);
-	$list->update;
-		
-	print "$count\n";
-}
+}	
+
+my $list = EMGaugeDB::List->retrieve(id => $listid);
+$list->set(
+	records => $count,
+	filename => $csvfile,
+	active => 1,
+);
+$list->update;
+	
+print "$count\n";
 
 exit;
